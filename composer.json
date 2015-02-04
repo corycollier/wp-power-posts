@@ -1,0 +1,28 @@
+{
+  "name"       : "corycollier/wp-power-posts",
+  "description": "Wordpress Power Posts",
+  "license"    : "MIT",
+  "authors"    : [
+    {
+      "name" : "Cory Collier",
+      "email": "corycollier@corycollier.com"
+    }
+  ],
+  "repositories": [
+    {
+      "type":"composer",
+      "url" :"http://wpackagist.org"
+    }
+  ],
+  "require": {
+    "johnpbloch/wordpress" : "4.1.0"
+  },
+  "require-dev": {
+    "phploc/phploc"            : "*",
+    "squizlabs/php_codesniffer": "~2.0",
+    "emagister/selenium-server": "2.43.*",
+    "phpunit/phpunit"          : "4.3.*",
+    "phpunit/phpunit-selenium" : "1.4.*",
+    "wp-coding-standards/wpcs" : "0.3.*"
+  }
+}

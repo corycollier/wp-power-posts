@@ -1,0 +1,9 @@
+# files
+.DS_Store
+cache.properties
+composer.lock
+
+# folders
+vendor/
+build/
+wordpress/
