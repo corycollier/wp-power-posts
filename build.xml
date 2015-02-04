@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="sun-corp-website-redesign" default="build">
+<project name="wp-power-posts" default="build">
   <!-- By default, we assume all tools to be on the $PATH -->
 
   <!-- bootstrap target, to ensure the ant-contrib jar is available -->
@@ -235,37 +235,5 @@
         javafiles="no"
         />
 
-    <!-- replace the 4 space soft tab with a hard tab character -->
-    <fixcrlf srcdir="${build.theme}"
-        includes="**/*.php"
-        tab="add"
-        tablength="2"
-        encoding="utf-8"
-        outputencoding="utf-8"
-        eol="lf"
-        eof="remove"
-        javafiles="no"
-        excludes="**/lib/*"
-        excludesfile="${build.theme}/lib/activation.php"
-        fixlast="true" />
-
-  </target>
-
-
-  <target name="deploy-testing" description="deploy build code to the testing environment">
-    <ftp server="corporate.sunrail.com"
-         port="21"
-         verbose="true"
-         remotedir="/var/www/testing/"
-         userid="evolve"
-         password="Ev0lv3T0d@y14"
-         passive="yes"
-         depends="yes"
-         binary="no">
-      <fileset dir="build/html">
-        <include name="**/*"/>
-      </fileset>
-    </ftp>
-  </target>
 
 </project>
