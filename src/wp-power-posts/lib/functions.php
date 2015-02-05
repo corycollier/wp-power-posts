@@ -15,7 +15,6 @@
  * @filesource
  */
 
-
 /**
  * debug an input
  *
@@ -43,5 +42,3 @@ function wppp_terminate ( $input ) {
     die ( $input . ' - saved to error_log' );
   }
 }
-
-/*************

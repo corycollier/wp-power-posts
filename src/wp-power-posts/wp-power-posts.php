@@ -9,12 +9,14 @@
  * License:     MIT
  */
 
-require './lib/functions.php';
+$root = plugin_dir_path( __FILE__ );
+
+require  $root . '/lib/functions.php';
 
 defined('ABSPATH') or wppp_terminate('Direct access to the plugin file');
 
 if ( is_admin() ) {
-  require './lib/admin.php';
+  require $root . '/lib/admin.php';
   add_action( 'admin_menu', 'wppp_create_menu' );
   add_action( 'admin_init', 'wppp_register_settings' );
 }

@@ -34,7 +34,7 @@ function wppp_create_menu ( ) {
 function wppp_register_settings ( ) {
   $post_types = get_post_types();
   foreach ( $post_types as $post_type ) {
-    register_settings( 'wppp-power-posts', $post_type );
+    register_setting( 'wppp-power-posts', $post_type );
   }
 }
 
@@ -48,9 +48,9 @@ function wppp_settings_page ( ) {
     <h2>WP Power Posts Settings</h2>
     <form method="post" actions="options.php">';
 
-  settings_field( 'wppp-power-posts' );
-  do_settings_section( 'wppp-power-posts' );
-  _wppp__settings_page_rows();
+  settings_fields( 'wppp-power-posts' );
+  do_settings_sections( 'wppp-power-posts' );
+  _wppp_settings_page_table();
   submit_button();
 
   echo '</form></div>';

@@ -95,13 +95,10 @@
 
     <!-- copy configuration files -->
     <copy toDir="${build.dir}">
-      <fileset dir="${basedir}">
+      <fileset dir="${basedir}/src">
         <include name="**/wp-config.php" />
         <include name="**/.htaccess" />
         <include name="**/favicon.ico" />
-        <exclude name="**/build/" />
-        <exclude name="**/src/" />
-        <exclude name="**/test/" />
       </fileset>
     </copy>
 
