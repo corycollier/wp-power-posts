@@ -11,5 +11,10 @@
 
 require './lib/functions.php';
 
-defined('ABSPATH') or wpp_terminate('Direct access to the plugin file');
+defined('ABSPATH') or wppp_terminate('Direct access to the plugin file');
 
+if ( is_admin() ) {
+  require './lib/admin.php';
+  add_action( 'admin_menu', 'wppp_create_menu' );
+  add_action( 'admin_init', 'wppp_register_settings' );
+}
