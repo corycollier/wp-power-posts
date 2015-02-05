@@ -4,6 +4,7 @@ cache.properties
 composer.lock
 
 # folders
+.sass-cache/
 vendor/
 build/
 wordpress/
