@@ -4,11 +4,22 @@
 
   <!-- bootstrap target, to ensure the ant-contrib jar is available -->
   <target name="bootstrap">
+    <mkdir dir="${basedir}/build/html" />
     <mkdir dir="${user.home}/.ant/lib"/>
     <!-- <get dest="${user.home}/.ant/lib/ant-contrib.jar"
       src="http://search.maven.org/remotecontent?filepath=ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3.jar" /> -->
       <get dest="${user.home}/.ant/lib/jsch-0.1.51.jar"
         src="http://sourceforge.net/projects/jsch/files/jsch.jar/0.1.51/jsch-0.1.51.jar" />
+
+    <exec executable="composer" failonerror="true">
+      <arg value="update" />
+    </exec>
+
+    <exec executable="${basedir}/vendor/bin/phpcs" failonerror="true">
+      <arg value="--config-set" />
+      <arg value="installed_paths" />
+      <arg value="${basedir}/vendor/wp-coding-standards/wpcs/" />
+    </exec>
   </target>
 
 
@@ -28,20 +39,15 @@
     <property name="build.tools" value="${basedir}/vendor/bin/"/>
     <property name="build.dir" value="${basedir}/build/html" />
     <property name="build.year" value="2014" />
-    <property name="build.theme" value="${basedir}/build/html/wp-content/themes/${ant.project.name}" />
     <property name="build.plugin" value="${basedir}/build/html/wp-content/plugins/${ant.project.name}" />
-    <property name="ant.project.version" value="1.3.0" />
+    <property name="ant.project.version" value="1.0.0" />
 
   </target>
 
-  <target name="debug" depends="init">
-    <echoproperties />
-  </target>
-
-<!-- depends="prepare,lint,compass,update-local-copy,update-doc-blocks,create-zip-file" -->
+  <!-- the default build target -->
   <target name="build"
-         depends="init,prepare,lint,compass,update-local-copy,update-doc-blocks, conform-to-wp-coding-standards, phpcs"
-         description=""/>
+         depends="prepare, init, lint, update-local-copy, update-doc-blocks, conform-to-wp-coding-standards"
+         description="the default build target"/>
 
   <!-- update the theme and plugin doc blocks -->
   <target name="update-doc-blocks" description="Replaces placeholders in docblocks with appropriate values">
@@ -49,7 +55,6 @@
     <replace token="@build-version@" value="${ant.project.version}">
       <fileset dir="${build.dir}">
         <include name="${build.plugin}/**" />
-        <include name="${build.theme}/**" />
         <modified />
       </fileset>
     </replace>
@@ -57,7 +62,6 @@
     <replace token="@build-year@" value="${build.year}">
       <fileset dir="${build.dir}">
         <include name="${build.plugin}/**" />
-        <include name="${build.theme}/**" />
         <modified />
       </fileset>
     </replace>
@@ -65,13 +69,11 @@
     <replace token="@build-name@" value="${ant.project.name}">
       <fileset dir="${build.dir}">
         <include name="${build.plugin}/**" />
-        <include name="${build.theme}/**" />
         <modified />
       </fileset>
     </replace>
 
     <replace token="@build-hash@" value="${build.hash}">
-      <fileset dir="${build.theme}" />
       <fileset dir="${build.plugin}" />
     </replace>
 
@@ -80,7 +82,7 @@
   <!-- Create the theme zip file -->
   <target name="create-zip-file">
     <zip destfile="${basedir}/build/dist/${ant.project.name}-${ant.project.version}.zip"
-         basedir="${build.theme}"
+         basedir="${build.plugin}"
     />
   </target>
 
@@ -93,41 +95,23 @@
         <exclude name="**/composer.json" />
         <exclude name="**/license.txt" />
         <exclude name="**/readme.html" />
-        <exclude name="**/wp-content/themes/" />
-      </fileset>
-    </copy>
-
-    <!-- The Theme -->
-    <copy todir="${build.theme}/">
-      <fileset dir="${basedir}/src/theme/">
-        <exclude name="**/.sass-cache/" />
-        <exclude name="**/sass/" />
-        <exclude name="**/config.rb" />
       </fileset>
     </copy>
 
     <!-- Custom Plugin -->
     <copy todir="${build.plugin}">
-      <fileset dir="${basedir}/src/plugin" />
+      <fileset dir="${basedir}/src/wp-power-posts" />
     </copy>
 
     <!-- copy configuration files -->
     <copy toDir="${build.dir}">
-      <fileset dir="${basedir}">
+      <fileset dir="${basedir}/src">
         <include name="**/wp-config.php" />
         <include name="**/.htaccess" />
         <include name="**/favicon.ico" />
-        <exclude name="**/build/" />
-        <exclude name="**/src/" />
-        <exclude name="**/test/" />
       </fileset>
     </copy>
-<!--
-    <chmod perm="777">
-      <fileset dir="${build.theme}/css/skins" />
-      <fileset dir="${build.dir}/wp-content/uploads" />
-    </chmod>
- -->
+
   </target>
 
   <!-- Clean up the artifact folders -->
@@ -151,16 +135,11 @@
     <mkdir dir="${basedir}/build/api"/>
     <mkdir dir="${basedir}/build/coverage"/>
     <mkdir dir="${basedir}/build/logs"/>
+    <mkdir dir="${basedir}/build/html"/>
     <property name="prepare.done" value="true"/>
   </target>
 
-  <!-- compiles the scss files into css -->
-  <target name="compass" description="compass compilation">
-    <exec dir="${basedir}/src/theme" executable="compass">
-     <arg value="compile" />
-    </exec>
-  </target>
-
+  <!-- php lint the source files -->
   <target name="lint" description="Perform syntax check of sourcecode files">
     <apply executable="php" failonerror="true">
       <arg value="-l" />
@@ -172,52 +151,40 @@
     </apply>
   </target>
 
+  <!-- PHPLOC - PHP Complexity Analyzer -->
   <target name="phploc"
       depends="init"
       description="Measure project size using PHPLOC and print human readable output.">
-  <exec executable="${build.tools}phploc">
-   <arg path="${basedir}/src" />
-  </exec>
+    <exec executable="${build.tools}phploc">
+      <arg path="${basedir}/src" />
+    </exec>
   </target>
 
-
+  <!-- PHPCS - Code Sniffer -->
   <target name="phpcs"
       depends="init"
       description="Find coding standard violations using PHP_CodeSniffer and print human readable output. ">
     <exec executable="${build.tools}phpcs">
-     <arg value="--standard=build/project.ruleset.xml" />
-     <arg value="--extensions=php" />
-     <arg path="${build.plugin}" />
-    </exec>
-    <exec executable="${build.tools}phpcs">
-     <arg value="--standard=build/project.ruleset.xml" />
-     <arg value="--extensions=php" />
-     <arg path="${build.theme}" />
+      <arg value="--standard=build/project.ruleset.xml" />
+      <arg value="--extensions=php" />
+      <arg path="${build.plugin}" />
     </exec>
   </target>
 
+  <!-- PHPCBF - the script that enforces PHPCS -->
   <target name="phpcbf"
       depends="init"
       description="forces code cleanup">
 
     <exec executable="${build.tools}phpcbf">
-     <arg value="--standard=build/project.ruleset.xml" />
-     <arg value="--extensions=php" />
-     <arg path="${build.plugin}" />
-
-    </exec>
-
-    <exec executable="${build.tools}phpcbf">
-     <arg value="--standard=build/project.ruleset.xml" />
-     <arg value="--ignore=src/theme/beopen*" />
-     <arg value="--extensions=php" />
-     <arg path="${build.theme}" />
-
+      <arg value="--standard=build/project.ruleset.xml" />
+      <arg value="--extensions=php" />
+      <arg path="${build.plugin}" />
     </exec>
 
   </target>
 
-
+  <!-- change all of the local coding standards to conform to WP standards -->
   <target name="conform-to-wp-coding-standards"
       depends="init"
       description="adjust build code to conform to Wordpress coding standards">
@@ -234,6 +201,6 @@
         fixlast="true"
         javafiles="no"
         />
-
+  </target>
 
 </project>
