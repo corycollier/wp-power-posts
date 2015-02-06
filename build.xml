@@ -10,6 +10,16 @@
       src="http://search.maven.org/remotecontent?filepath=ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3.jar" /> -->
       <get dest="${user.home}/.ant/lib/jsch-0.1.51.jar"
         src="http://sourceforge.net/projects/jsch/files/jsch.jar/0.1.51/jsch-0.1.51.jar" />
+
+    <exec executable="composer" failonerror="true">
+      <arg value="update" />
+    </exec>
+
+    <exec executable="${basedir}/vendor/bin/phpcs" failonerror="true">
+      <arg value="--config-set" />
+      <arg value="installed_paths" />
+      <arg value="${basedir}/vendor/wp-coding-standards/wpcs/" />
+    </exec>
   </target>
 
 
